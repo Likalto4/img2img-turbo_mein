@@ -176,6 +176,7 @@ def parse_args_unpaired_training():
     parser.add_argument("--gradient_checkpointing", action="store_true",
         help="Whether or not to use gradient checkpointing to save memory at the expense of slower backward pass.")
     parser.add_argument("--enable_xformers_memory_efficient_attention", action="store_true", help="Whether or not to use xformers.")
+    parser.add_argument("--mixed_precision", type=str, default=None, choices=["no", "fp16", "bf16"],)
 
     args = parser.parse_args()
     return args
@@ -212,6 +213,13 @@ def build_transform(image_prep):
         ])
     elif image_prep == "no_resize":
         T = transforms.Lambda(lambda x: x)
+    
+    elif image_prep == "resize_512_randomcrop_256x256_hflip":
+        T = transforms.Compose([
+            transforms.Resize((512, 512), interpolation=Image.LANCZOS),
+            transforms.RandomCrop((256, 256)),
+            transforms.RandomHorizontalFlip(),
+        ])
     return T
 
 
